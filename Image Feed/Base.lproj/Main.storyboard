@@ -189,11 +189,22 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="ySL-yA-vpN">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cqC-bB-90K">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                            </imageView>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="ySL-yA-vpN">
+                                        <rect key="frame" x="0.0" y="0.0" width="271" height="352"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </imageView>
+                                </subviews>
+                                <viewLayoutGuide key="contentLayoutGuide" id="5xp-Uy-W5r"/>
+                                <viewLayoutGuide key="frameLayoutGuide" id="ETY-IL-spe"/>
+                                <connections>
+                                    <outlet property="delegate" destination="LLF-I6-GhD" id="cLx-8I-pXn"/>
+                                </connections>
+                            </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uuG-6Y-ZsG">
-                                <rect key="frame" x="8" y="4" width="48" height="48"/>
+                                <rect key="frame" x="8" y="8" width="48" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="tHi-bt-Jtg"/>
                                     <constraint firstAttribute="height" constant="48" id="vaZ-jT-j9G"/>
@@ -208,17 +219,18 @@
                         <viewLayoutGuide key="safeArea" id="S0u-Fw-5HR"/>
                         <color key="backgroundColor" red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstAttribute="bottom" secondItem="ySL-yA-vpN" secondAttribute="bottom" id="3VW-QF-7c2"/>
-                            <constraint firstAttribute="trailing" secondItem="ySL-yA-vpN" secondAttribute="trailing" id="E0N-ba-Fns"/>
+                            <constraint firstAttribute="bottom" secondItem="cqC-bB-90K" secondAttribute="bottom" id="7Tb-De-C6h"/>
+                            <constraint firstItem="cqC-bB-90K" firstAttribute="leading" secondItem="S0u-Fw-5HR" secondAttribute="leading" id="7W8-FN-ku0"/>
+                            <constraint firstItem="uuG-6Y-ZsG" firstAttribute="top" secondItem="S0u-Fw-5HR" secondAttribute="top" constant="8" id="DWr-sX-qO3"/>
                             <constraint firstItem="uuG-6Y-ZsG" firstAttribute="leading" secondItem="S0u-Fw-5HR" secondAttribute="leading" constant="8" id="FMg-TC-jze"/>
-                            <constraint firstItem="uuG-6Y-ZsG" firstAttribute="top" secondItem="S0u-Fw-5HR" secondAttribute="top" constant="4" id="bcn-5o-g7y"/>
-                            <constraint firstItem="ySL-yA-vpN" firstAttribute="top" secondItem="85b-bs-OV5" secondAttribute="top" id="hwW-5e-crV"/>
-                            <constraint firstItem="ySL-yA-vpN" firstAttribute="leading" secondItem="85b-bs-OV5" secondAttribute="leading" id="tef-cI-ffT"/>
+                            <constraint firstItem="cqC-bB-90K" firstAttribute="top" secondItem="85b-bs-OV5" secondAttribute="top" id="Ot8-eq-qi0"/>
+                            <constraint firstItem="S0u-Fw-5HR" firstAttribute="trailing" secondItem="cqC-bB-90K" secondAttribute="trailing" id="p8Y-gb-YRa"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Lcm-gS-mSc"/>
                     <connections>
                         <outlet property="imageView" destination="ySL-yA-vpN" id="8l5-e5-jDD"/>
+                        <outlet property="scrollView" destination="cqC-bB-90K" id="hE9-6j-VHh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="y78-D9-sEp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
