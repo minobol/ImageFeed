@@ -215,6 +215,18 @@
                                     <action selector="didTapBackButton" destination="LLF-I6-GhD" eventType="touchUpInside" id="yVn-yQ-dP9"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4tZ-If-a6j">
+                                <rect key="frame" x="182" y="829" width="50" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="AL6-Jv-Mze"/>
+                                    <constraint firstAttribute="width" constant="50" id="uzX-77-gOP"/>
+                                </constraints>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" image="share_button"/>
+                                <connections>
+                                    <action selector="didTapShareButton:" destination="LLF-I6-GhD" eventType="touchUpInside" id="zk2-Bb-imv"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="S0u-Fw-5HR"/>
                         <color key="backgroundColor" red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="calibratedRGB"/>
@@ -224,7 +236,9 @@
                             <constraint firstItem="uuG-6Y-ZsG" firstAttribute="top" secondItem="S0u-Fw-5HR" secondAttribute="top" constant="8" id="DWr-sX-qO3"/>
                             <constraint firstItem="uuG-6Y-ZsG" firstAttribute="leading" secondItem="S0u-Fw-5HR" secondAttribute="leading" constant="8" id="FMg-TC-jze"/>
                             <constraint firstItem="cqC-bB-90K" firstAttribute="top" secondItem="85b-bs-OV5" secondAttribute="top" id="Ot8-eq-qi0"/>
+                            <constraint firstItem="4tZ-If-a6j" firstAttribute="centerX" secondItem="S0u-Fw-5HR" secondAttribute="centerX" id="lIb-OU-4ee"/>
                             <constraint firstItem="S0u-Fw-5HR" firstAttribute="trailing" secondItem="cqC-bB-90K" secondAttribute="trailing" id="p8Y-gb-YRa"/>
+                            <constraint firstItem="S0u-Fw-5HR" firstAttribute="bottom" secondItem="4tZ-If-a6j" secondAttribute="bottom" constant="17" id="yCX-Gd-Igx"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Lcm-gS-mSc"/>
@@ -267,6 +281,7 @@
         <image name="avatar" width="70" height="70"/>
         <image name="like_button_on" width="42" height="42"/>
         <image name="logout_button" width="44" height="44"/>
+        <image name="share_button" width="50" height="50"/>
         <image name="tab_editorial_active" width="30" height="30"/>
         <image name="tab_profile_active" width="30" height="30"/>
     </resources>
