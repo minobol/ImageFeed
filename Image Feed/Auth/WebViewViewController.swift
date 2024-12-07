@@ -7,13 +7,8 @@
 import UIKit
 import WebKit
 
-enum WebViewConstants {
-    static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
-}
-
 final class WebViewViewController: UIViewController {
     @IBOutlet private var webView: WKWebView!
-    
     @IBOutlet private var progressView: UIProgressView!
     
     weak var delegate: WebViewViewControllerDelegate?
@@ -60,8 +55,8 @@ final class WebViewViewController: UIViewController {
     }
     
     private func loadAuthView() {
-        guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
-            print("unsplashAuthorizeURLString error")
+        guard var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString) else {
+            print("Error creating URLComponents from unsplashAuthorizeURLString")
             return
         }
         
@@ -73,31 +68,34 @@ final class WebViewViewController: UIViewController {
         ]
         
         guard let url = urlComponents.url else {
-            print("URLcomponents error")
+            print("Error retrieving URL from URLComponents")
             return
         }
+        
         let request = URLRequest(url: url)
+        
+        // Log the request for debugging purposes
+        print("Request created with URL: \(url.absoluteString)")
+        
         webView.load(request)
     }
     
     @IBAction func backButton(_ sender: UIButton) {
-        delegate?.webViewViewControllerDidCancel(WebViewViewController())
+        delegate?.webViewViewControllerDidCancel(self)
     }
 }
 
 extension WebViewViewController: WKNavigationDelegate {
     
     func code(from navigationAction: WKNavigationAction) -> String? {
-        if
-            let url = navigationAction.request.url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == "/oauth/authorize/native",
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" })
-        {
+        if let url = navigationAction.request.url,
+           let urlComponents = URLComponents(string: url.absoluteString),
+           urlComponents.path == "/oauth/authorize/native",
+           let items = urlComponents.queryItems,
+           let codeItem = items.first(where: { $0.name == "code" }) {
             return codeItem.value
         } else {
-            print("Code error")
+            print("Error retrieving code from navigationAction")
             return nil
         }
     }
@@ -106,12 +104,12 @@ extension WebViewViewController: WKNavigationDelegate {
         _ webView: WKWebView,
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            if let code = code(from: navigationAction) {
-                delegate?.webViewViewController(self, didAuthenticateWithCode: code)
-                decisionHandler(.cancel)
-            } else {
-                decisionHandler(.allow)
-            }
+        
+        if let code = code(from: navigationAction) {
+            delegate?.webViewViewController(self, didAuthenticateWithCode: code)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
         }
+    }
 }
-
