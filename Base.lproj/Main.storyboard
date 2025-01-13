@@ -58,7 +58,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="enq-Ma-8if" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5060.8695652173919" y="-642.1875"/>
+            <point key="canvasLocation" x="5022" y="-562"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Vp8-rv-PO2">
@@ -76,31 +76,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LTn-Ch-5YE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4150.7246376811599" y="-642.1875"/>
-        </scene>
-        <!--Splash View Controller-->
-        <scene sceneID="kkd-23-ib2">
-            <objects>
-                <viewController id="wZA-6c-Yb6" customClass="SplashViewController" customModule="Image_Feed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="p6p-QX-9CF">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="splash_screen_logo" translatesAutoresizingMaskIntoConstraints="NO" id="DmX-bB-qG5">
-                                <rect key="frame" x="170.5" y="410.5" width="73" height="75.5"/>
-                            </imageView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="Pmw-oC-Fau"/>
-                        <color key="backgroundColor" name="ypBlack"/>
-                        <constraints>
-                            <constraint firstItem="DmX-bB-qG5" firstAttribute="centerX" secondItem="p6p-QX-9CF" secondAttribute="centerX" id="Nbo-yb-OJj"/>
-                            <constraint firstItem="DmX-bB-qG5" firstAttribute="centerY" secondItem="p6p-QX-9CF" secondAttribute="centerY" id="pe7-pn-dAp"/>
-                        </constraints>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="p6i-HN-aYh" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="3122" y="-642"/>
+            <point key="canvasLocation" x="4112" y="-562"/>
         </scene>
         <!--Web View View Controller-->
         <scene sceneID="B8N-hA-vMM">
@@ -157,25 +133,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="35I-so-2XS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5971" y="-642"/>
-        </scene>
-        <!--Profile View Controller-->
-        <scene sceneID="vIg-Hi-oYI">
-            <objects>
-                <viewController id="LrR-k6-fyw" customClass="ProfileViewController" customModule="Image_Feed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="AQg-qE-3ga">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="EO6-1K-9TM"/>
-                        <color key="backgroundColor" red="0.1019607843" green="0.1058823529" blue="0.1333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    </view>
-                    <tabBarItem key="tabBarItem" image="tab_profile_active" id="XYS-iH-MCq">
-                        <color key="badgeColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    </tabBarItem>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Htr-LP-Fta" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="4151" y="918"/>
+            <point key="canvasLocation" x="5930" y="-562"/>
         </scene>
         <!--Single Image View Controller-->
         <scene sceneID="K66-Qt-vTF">
@@ -245,12 +203,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="u5h-m0-hf4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4919" y="151"/>
+            <point key="canvasLocation" x="5909" y="151"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="bMc-4g-3C4">
             <objects>
-                <tabBarController storyboardIdentifier="TabBarViewController" automaticallyAdjustsScrollViewInsets="NO" id="3HT-12-BoJ" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="TabBarViewController" automaticallyAdjustsScrollViewInsets="NO" id="3HT-12-BoJ" customClass="TabBarController" customModule="Image_Feed" customModuleProvider="target" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="QPR-F7-YAR">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
@@ -262,17 +220,16 @@
                     </tabBar>
                     <connections>
                         <segue destination="Qhk-2c-Xbh" kind="relationship" relationship="viewControllers" id="HKd-jv-1Qx"/>
-                        <segue destination="LrR-k6-fyw" kind="relationship" relationship="viewControllers" id="AaP-UA-3GQ"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QQq-GW-Loe" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3122" y="152"/>
+            <point key="canvasLocation" x="4112" y="152"/>
         </scene>
         <!--ImageList-->
         <scene sceneID="rzS-AO-DW7">
             <objects>
-                <viewController storyboardIdentifier="ImagesListViewController" title="ImageList" id="Qhk-2c-Xbh" customClass="ImagesListViewController" customModule="Image_Feed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ImagesListViewController" title="ImageList" id="Qhk-2c-Xbh" customClass="ImagesListViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="4Sj-Gz-bme">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -359,7 +316,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wZ7-hd-7KJ" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4151" y="151"/>
+            <point key="canvasLocation" x="5141" y="151"/>
         </scene>
     </scenes>
     <resources>
@@ -369,9 +326,7 @@
         <image name="like_button_on" width="42" height="42"/>
         <image name="nav_back_button" width="24" height="24"/>
         <image name="share_button" width="50" height="50"/>
-        <image name="splash_screen_logo" width="73" height="75.5"/>
         <image name="tab_editorial_active" width="30" height="30"/>
-        <image name="tab_profile_active" width="30" height="30"/>
         <namedColor name="TextAuthButtonColor">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
