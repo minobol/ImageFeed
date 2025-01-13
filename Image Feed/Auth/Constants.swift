@@ -19,4 +19,8 @@ enum Constants {
     static let defaultBaseURL = URL (string: "https://api.unsplash.com/")
     
     static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
+    
+    static let defaultURL = URL(string: "https://unsplash.com/")
+    
+    static let reuseIdentifier = "ImagesListCell"
 }

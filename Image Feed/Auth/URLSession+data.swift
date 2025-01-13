@@ -14,6 +14,32 @@ enum NetworkError: Error {
 }
 
 extension URLSession {
+    
+    static let decoder: JSONDecoder = .init()
+    
+    // MARK: - objectTask func
+    func objectTask<T: Codable>(for request: URLRequest, completion: @escaping(Result<T,Error>) -> Void) -> URLSessionTask {
+        let decoder = URLSession.decoder
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let task = data(for: request) { result in
+            switch result {
+            case .success(let data):
+                do {
+                    let response = try decoder.decode(T.self, from: data)
+                    completion(.success(response))
+                } catch {
+                    print("Ошибка декодирования: \(error.localizedDescription), Данные: \(String(data: data, encoding: .utf8) ?? "")")
+                    completion(.failure(error))
+                }
+            case .failure(let error):
+                print("Load avatar URL failure")
+                completion(.failure(error))
+            }
+        }
+        return task
+    }
+    
+    
     func data(
         for request: URLRequest,
         completion: @escaping (Result<Data, Error>) -> Void
