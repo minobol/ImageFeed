@@ -10,6 +10,7 @@ import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
+    
     // MARK: - Private Properties
     private let profileService = ProfileService.shared
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
@@ -164,6 +165,7 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+   
     @objc
     private func didTapExitProfileButton() {
         

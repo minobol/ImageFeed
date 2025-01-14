@@ -2,20 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Application Scene Manifest</key>
+	<key>UIApplicationSceneManifest</key>
 	<dict>
-		<key>Enable Multiple Windows</key>
+		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
-		<key>Scene Configuration</key>
+		<key>UISceneConfigurations</key>
 		<dict>
-			<key>Window Application Session Role</key>
+			<key>UIWindowSceneSessionRoleApplication</key>
 			<array>
 				<dict>
-					<key>Configuration Name</key>
+					<key>UISceneConfigurationName</key>
 					<string>Default Configuration</string>
-					<key>Delegate Class Name</key>
+					<key>UISceneDelegateClassName</key>
 					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-					<key>Storyboard Name</key>
+					<key>UISceneStoryboardFile</key>
 					<string>Main</string>
 				</dict>
 			</array>

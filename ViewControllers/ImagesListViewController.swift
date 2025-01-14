@@ -67,12 +67,12 @@ extension ImagesListViewController {
             return
         }
         
-        cell.cellImage.image = image
-        cell.dateLabel.text = dateFormatter.string(from: Date())
+       cell.imageViewList.image = image
+       cell.labelList.text = dateFormatter.string(from: Date())
         
         let isLiked = indexPath.row % 2 == 0
         let likeImage = isLiked ? UIImage(named: "Like Active") : UIImage(named: "Like No Active")
-        cell.likeButton.setImage(likeImage, for: .normal)
+       cell.likeButtonList.setImage(likeImage, for: .normal)
     }
 }
 

@@ -2,7 +2,7 @@
 //  UIBlockingProgressHUD.swift
 //  Image Feed
 //
-//  Created by MacBook on 11.01.2025.
+//  Created by MacBook on 14.01.2025.
 //
 
 import UIKit

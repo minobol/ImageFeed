@@ -70,11 +70,10 @@ final class SplashViewController: UIViewController {
 // MARK: - AuthViewControllerDelegate
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
-        vc.dismiss(animated: true)
-
-        guard let token = oAuth2TokenStorage.token else { return }
-        
-        fetchProfile(token)
+        vc.dismiss(animated: true) {
+            guard let token = self.oAuth2TokenStorage.token else { return }
+            self.fetchProfile(token)
+        }
     }
 
     private func fetchProfile(_ token: String) {
@@ -84,6 +83,7 @@ extension SplashViewController: AuthViewControllerDelegate {
             UIBlockingProgressHUD.dismiss()
             switch result {
             case .success:
+                // Переход к TabBarViewController здесь
                 self.switchToTabBarController()
                 self.profileImageService.fetchProfileImageUrl(token: token) { result in
                     switch result {
@@ -99,3 +99,4 @@ extension SplashViewController: AuthViewControllerDelegate {
         }
     }
 }
+
