@@ -51,34 +51,37 @@ final class ProfileImageService {
         self.task = task
         task.resume()
     }
+    
+    // MARK: - makeUserDataRequest private func
+    private func makeUserDataRequest(token: String) -> URLRequest? {
+        let profileService = ProfileService.shared
+        guard let profile = profileService.profile else {
+            print("Empty username")
+            return nil
+        }
+        let username = profile.username
+        
+        guard let baseURL = Constants.defaultBaseURL
+        else {
+            preconditionFailure("Unable to construct baseURL")
+        }
+        guard let url = URL(
+            string: "/users/\(username)",
+            relativeTo: baseURL
+        ) else {
+            preconditionFailure("Unable to construct url")
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        print("Avatar URL Request: \(request)")
+        return request
+    }
+
+    
 }
 
-// MARK: - makeUserDataRequest private func
-private func makeUserDataRequest(token: String) -> URLRequest? {
-    let profileService = ProfileService.shared
-    guard let profile = profileService.profile else {
-        print("Empty username")
-        return nil
-    }
-    let username = profile.username
-    
-    guard let baseURL = Constants.defaultBaseURL
-    else {
-        preconditionFailure("Unable to construct baseURL")
-    }
-    guard let url = URL(
-        string: "/users/\(username)",
-        relativeTo: baseURL
-    ) else {
-        preconditionFailure("Unable to construct url")
-    }
-    
-    var request = URLRequest(url: url)
-    request.httpMethod = "GET"
-    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-    print("Avatar URL Request: \(request)")
-    return request
-}
 
 // MARK: - Models
 struct UserResult: Codable {

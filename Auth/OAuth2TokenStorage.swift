@@ -15,7 +15,6 @@ final class OAuth2TokenStorage {
     var token: String? {
         get {
             let token = storage.string(forKey: Keys.tokenStorage.rawValue)
-            print("Token read: \(String(describing: token))")
             return token
         }
         set {

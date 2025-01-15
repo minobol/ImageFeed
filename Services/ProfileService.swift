@@ -51,26 +51,29 @@ final class ProfileService {
         self.task = task
         task.resume()
     }
+    
+    // MARK: - makeProfileDataRequest private func
+    private func makeProfileDataRequest(token: String) -> URLRequest? {
+        guard let baseURL = Constants.defaultBaseURL
+        else {
+            preconditionFailure("Unable to construct baseURL")
+        }
+        guard let url = URL(
+            string: "/me",
+            relativeTo: baseURL
+        ) else {
+            preconditionFailure("Unable to construct url")
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        print("URL Request: \(request)")
+        return request
+    }
+    
 }
 
-// MARK: - makeProfileDataRequest private func
-private func makeProfileDataRequest(token: String) -> URLRequest? {
-    guard let baseURL = Constants.defaultBaseURL
-    else {
-        preconditionFailure("Unable to construct baseURL")
-    }
-    guard let url = URL(
-        string: "/me",
-        relativeTo: baseURL
-    ) else {
-        preconditionFailure("Unable to construct url")
-    }
-    var request = URLRequest(url: url)
-    request.httpMethod = "GET"
-    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-    print("URL Request: \(request)")
-    return request
-}
+
 
 // MARK: - Models
 struct ProfileResult: Codable {

@@ -8,7 +8,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
 
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let splashViewController = storyboard.instantiateInitialViewController() as! SplashViewController
+        guard let splashViewController = storyboard.instantiateInitialViewController() as? SplashViewController else { return }
 
         window?.rootViewController = splashViewController
         window?.makeKeyAndVisible()

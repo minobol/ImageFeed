@@ -138,9 +138,9 @@ final class ProfileViewController: UIViewController {
             nickNameLabel,
             profileDescriptionLabel,
             exitButton
-        ].forEach { [weak self] in
+        ].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            self?.view.addSubview($0)
+            view.addSubview($0)
         }
     }
     
@@ -168,6 +168,6 @@ final class ProfileViewController: UIViewController {
    
     @objc
     private func didTapExitProfileButton() {
-        
+        // TODO: - Добавить логику нажатия на кнопку Logout
     }
 }
