@@ -8,8 +8,7 @@
 import UIKit
 import Kingfisher
 
-final class ProfileViewController: UIViewController {
-    
+final class ProfileViewController: UIViewController, AuthViewControllerDelegate {
     
     // MARK: - Private Properties
     private let profileService = ProfileService.shared
@@ -49,7 +48,7 @@ final class ProfileViewController: UIViewController {
     private let exitButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "ipad.and.arrow.forward")!, for: .normal)
-        button.addTarget(ProfileViewController.self, action: #selector(didTapExitProfileButton), for: .touchUpInside)
+        button.addTarget(nil, action: #selector(didTapExitProfileButton), for: .touchUpInside)
         button.tintColor = UIColor(named: "ypRed")
         return button
     }()
@@ -92,7 +91,45 @@ final class ProfileViewController: UIViewController {
         }
     }
     
+    // MARK: - AuthViewControllerDelegate
+    func didAuthenticate(_ vc: AuthViewController) {
+        vc.dismiss(animated: true)
+        
+        guard let token = oAuth2TokenStorage.token else {
+            print("token error ")
+            return
+        }
+        
+        fetchProfile(token)
+    }
+    
     // MARK: - Private Methods
+    private func fetchProfile(_ token: String) {
+        UIBlockingProgressHUD.show()
+        
+        profileService.fetchProfile(token: token) { result in
+            UIBlockingProgressHUD.dismiss()
+            switch result {
+            case .success:
+                self.updateProfileDetails()
+                print("Success authenticate")
+            case .failure:
+                print("Load profile error")
+                break
+            }
+        }
+        
+        profileImageService.fetchProfileImageUrl(token: token) { result in
+            switch result {
+            case .success:
+                print("Success avatar load")
+            case .failure:
+                print("Load avatar error")
+                break
+            }
+        }
+    }
+
     private func updateProfileDetails() {
         if let profile = profileService.profile {
             nameLabel.text = profile.name
@@ -102,20 +139,13 @@ final class ProfileViewController: UIViewController {
             print("No profile found")
         }
     }
-    
+
     private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL
-                
-        else { return }
-        let imageView = profileImageView
+        guard let profileImageURL = ProfileImageService.shared.avatarURL else { return }
+        
         let imageUrl = URL(string: profileImageURL)
-        imageView.kf.setImage(with: imageUrl)
-        let processor = RoundCornerImageProcessor(cornerRadius: 16)
-        imageView.kf.indicatorType = .activity
-        imageView.kf.setImage(with: imageUrl,
-                              placeholder: UIImage(named: "placeholder.jpeg"),
-                              options: [.processor(processor)]) { result in
+        
+        profileImageView.kf.setImage(with: imageUrl, placeholder: UIImage(named: "placeholder.jpeg")) { result in
             
             switch result {
             case .success(let value):
@@ -126,11 +156,21 @@ final class ProfileViewController: UIViewController {
             case .failure(let error):
                 print(error)
             }
+            
+            // Применяем закругление углов к изображению профиля
+            let processor = RoundCornerImageProcessor(cornerRadius: 16)
+            self.profileImageView.kf.indicatorType = .activity
+            
+            self.profileImageView.kf.setImage(with: imageUrl,
+                                               placeholder: UIImage(named: "placeholder.jpeg"),
+                                               options: [.processor(processor)])
+            
+            // Настройки кэша изображения
+            let cache = ImageCache.default
+            cache.memoryStorage.config.totalCostLimit = 50 * 1024 * 1024 // 50 MB limit for memory cache
         }
-        let cache = ImageCache.default
-        cache.memoryStorage.config.totalCostLimit = 50 * 1024 * 1024
     }
-    
+
     private func addSubviews() {
         [
             profileImageView,
@@ -143,7 +183,7 @@ final class ProfileViewController: UIViewController {
             view.addSubview($0)
         }
     }
-    
+
     private func makeConstraints() {
         NSLayoutConstraint.activate([
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
@@ -164,10 +204,28 @@ final class ProfileViewController: UIViewController {
             exitButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor)
         ])
     }
-    
-   
+
     @objc
     private func didTapExitProfileButton() {
-        // TODO: - Добавить логику нажатия на кнопку Logout
+        // Удаление токена из хранилища при выходе из профиля
+        oAuth2TokenStorage.token = nil
+        
+        // Переход к экрану аутентификации после выхода из профиля
+        switchToAuthViewController()
+    }
+
+    private func switchToAuthViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        
+        guard let navigationController =
+                storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? UINavigationController,
+              let authViewController =
+                navigationController.topViewController as? AuthViewController else { return }
+        
+        authViewController.delegate = self // Устанавливаем делегата для аутентификации
+        
+        navigationController.modalPresentationStyle = .fullScreen
+        
+        present(navigationController, animated: true, completion: nil)
     }
 }

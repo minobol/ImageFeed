@@ -23,16 +23,22 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         vc.dismiss(animated: true)
-        
+
         UIBlockingProgressHUD.show()
-        
+
         oAuth2Service.fetchOAuthToken(code: code) { [weak self] result in
             guard let self = self else { return }
             UIBlockingProgressHUD.dismiss()
             switch result {
             case .success(let token):
                 self.oAuth2TokenStorage.token = token
+                
+                // Переход к таб-бару после успешной авторизации
+                self.switchToTabBarController()
+                
+                // Уведомление делегата об успешной авторизации (если нужно)
                 self.delegate?.didAuthenticate(self)
+                
             case .failure:
                 let alert = UIAlertController(title: "Ошибка", message: "Не удалось войти в систему", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "ОК", style: .default))
@@ -44,5 +50,17 @@ extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         dismiss(animated: true)
     }
-}
 
+    // MARK: - Private Methods
+    private func switchToTabBarController() {
+        guard let window = UIApplication.shared.windows.first else {
+            assertionFailure("Invalid window configuration")
+            return
+        }
+
+        let tabBarController = UIStoryboard(name: "Main", bundle: .main)
+            .instantiateViewController(withIdentifier: "TabBarViewController")
+
+        window.rootViewController = tabBarController
+    }
+}

@@ -14,12 +14,14 @@ final class OAuth2TokenStorage {
     
     var token: String? {
         get {
-            let token = storage.string(forKey: Keys.tokenStorage.rawValue)
-            return token
+            return storage.string(forKey: Keys.tokenStorage.rawValue)
         }
         set {
-            storage.set(newValue ?? "", forKey: Keys.tokenStorage.rawValue)
-            print("Token write: \(String(describing: token))")
+            if let newValue = newValue {
+                storage.set(newValue, forKey: Keys.tokenStorage.rawValue)
+            } else {
+                storage.removeObject(forKey: Keys.tokenStorage.rawValue)
+            }
         }
     }
     
@@ -29,4 +31,3 @@ final class OAuth2TokenStorage {
         case tokenStorage
     }
 }
-
