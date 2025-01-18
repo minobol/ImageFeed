@@ -45,9 +45,9 @@ final class OAuth2Service {
             guard let self else { return }
             self.task = nil
             self.lastCode = nil
-            UIBlockingProgressHUD.dismiss()
             switch result {
             case .success(let data):
+                UIBlockingProgressHUD.dismiss()
                 print("Success token: \(data.accessToken)")
                 handler(.success(data.accessToken))
             case .failure(let error):
@@ -58,37 +58,32 @@ final class OAuth2Service {
         self.task = task
         task.resume()
     }
-    
-    // MARK: - makeOAuthTokenRequest private func
-    private func makeOAuthTokenRequest(code: String) -> URLRequest? {
-        guard let baseURL = Constants.defaultURL
-        else {
-            preconditionFailure("Unable to construct baseURL")
-        }
-        guard let url = URL(
-            string: "/oauth/token"
-            + "?client_id=\(Constants.accessKey)"
-            + "&&client_secret=\(Constants.secretKey)"
-            + "&&redirect_uri=\(Constants.redirectURI)"
-            + "&&code=\(code)"
-            + "&&grant_type=authorization_code",
-            relativeTo: baseURL
-        ) else {
-            preconditionFailure("Unable to construct url")
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        print("Token request: \(request)")
-        return request
-    }
 }
 
+// MARK: - makeOAuthTokenRequest private func
+private func makeOAuthTokenRequest(code: String) -> URLRequest? {
+    guard let baseURL = Constants.defaultURL
+    else {
+        preconditionFailure("Unable to construct baseURL")
+    }
+    guard let url = URL(
+        string: "/oauth/token"
+        + "?client_id=\(Constants.accessKey)"
+        + "&&client_secret=\(Constants.secretKey)"
+        + "&&redirect_uri=\(Constants.redirectURI)"
+        + "&&code=\(code)"
+        + "&&grant_type=authorization_code",
+        relativeTo: baseURL
+    ) else {
+        preconditionFailure("Unable to construct url")
+    }
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    print("Token request: \(request)")
+    return request
+}
 
 // MARK: - Models
 enum AuthServiceError: Error {
     case invalidRequest
-}
-
-struct OAuthTokenResponseBody: Codable {
-    var accessToken: String
 }

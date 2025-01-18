@@ -8,9 +8,13 @@
 import UIKit
 
 final class SplashViewController: UIViewController {
+    // MARK: - Static Properties
+    static let shared = SplashViewController()
     
     // MARK: - Private Properties
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
+    private let profileImageService = ProfileImageService.shared
+    private let profileService = ProfileService.shared
     
     private lazy var logoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -30,9 +34,11 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        // Проверяем наличие и валидность токена
-        checkAndSwitchToAppropriateController()
+        if oAuth2TokenStorage.token != nil, oAuth2TokenStorage.token != "" {
+            switchToTabBarController()
+        } else {
+            switchToAuthViewController()
+        }
     }
     
     // MARK: - Private Methods
@@ -50,17 +56,18 @@ final class SplashViewController: UIViewController {
         ])
     }
     
-    private func switchToAuthViewController() {
+    func switchToAuthViewController() {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        guard
+            let navigationViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? UINavigationController,
+            let authViewController = navigationViewController.topViewController as? AuthViewController
+        else {return}
         
-        guard let navigationController =
-                storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? UINavigationController,
-              let authViewController =
-                navigationController.topViewController as? AuthViewController else { return }
-
-        navigationController.modalPresentationStyle = .fullScreen
-        
-        present(navigationController, animated: true, completion: nil)
+        authViewController.delegate = self
+        navigationViewController.modalPresentationStyle = .fullScreen
+        present(navigationViewController, animated: true) {
+            
+        }
     }
     
     private func switchToTabBarController() {
@@ -68,24 +75,45 @@ final class SplashViewController: UIViewController {
             assertionFailure("Invalid window configuration")
             return
         }
-
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
             .instantiateViewController(withIdentifier: "TabBarViewController")
-
         window.rootViewController = tabBarController
     }
+}
 
-    // MARK: - Token Validation and Switching
-    private func checkAndSwitchToAppropriateController() {
-        if let token = oAuth2TokenStorage.token, isValidToken(token) {
-            switchToTabBarController() // Переход к основному экрану
-        } else {
-            switchToAuthViewController() // Переход к экрану аутентификации
+// MARK: - extension SplashViewController
+extension SplashViewController: AuthViewControllerDelegate {
+    func didAuthenticate(_ vc: AuthViewController) {
+        vc.dismiss(animated: true)
+        
+        guard let token = oAuth2TokenStorage.token else {
+            print("token error ")
+            return
         }
+        fetchProfile(token)
     }
-
-    private func isValidToken(_ token: String) -> Bool {
-        // Проверяем, что длина токена больше 40 символов
-        return token.count > 40
+    
+    private func fetchProfile(_ token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token: token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            switch result {
+            case .success:
+                self?.switchToTabBarController()
+                self?.profileImageService.fetchProfileImageUrl(token: token) { result in
+                    switch result {
+                    case .success:
+                        print("Success avatar load")
+                    case .failure:
+                        print("Load avatar error")
+                        break
+                    }
+                }
+                print("Success authenticate")
+            case .failure:
+                print("Load profile error")
+                break
+            }
+        }
     }
 }

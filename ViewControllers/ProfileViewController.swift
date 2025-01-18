@@ -8,19 +8,22 @@
 import UIKit
 import Kingfisher
 
-final class ProfileViewController: UIViewController, AuthViewControllerDelegate {
+final class ProfileViewController: UIViewController {
     
     // MARK: - Private Properties
     private let profileService = ProfileService.shared
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
     private let profileImageService = ProfileImageService.shared
+    private let profileLogoutService = ProfileLogoutService.shared
+    
     private var profileImageServiceObserver: NSObjectProtocol?
     
     private lazy var profileImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "placeholder.jpeg")
-        imageView.tintColor = .gray
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = UIImage(named: "Rectangle 169")
+        imageView.frame.size.width = 70
+        imageView.layer.cornerRadius = imageView.frame.size.width / 2
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -47,8 +50,8 @@ final class ProfileViewController: UIViewController, AuthViewControllerDelegate 
     
     private let exitButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "ipad.and.arrow.forward")!, for: .normal)
-        button.addTarget(nil, action: #selector(didTapExitProfileButton), for: .touchUpInside)
+        button.setImage(UIImage(systemName: "ipad.and.arrow.forward"), for: .normal)
+        button.addTarget(self, action: #selector(didTapExitProfileButton), for: .touchUpInside)
         button.tintColor = UIColor(named: "ypRed")
         return button
     }()
@@ -56,18 +59,19 @@ final class ProfileViewController: UIViewController, AuthViewControllerDelegate 
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor(named: "ypBlack")
         addSubviews()
         makeConstraints()
-        
+        UIBlockingProgressHUD.show()
         guard let token = oAuth2TokenStorage.token else {
             print("token error ")
             return
         }
         
-        DispatchQueue.main.async {
-            self.profileService.fetchProfile(token: token) { result in
-                self.updateProfileDetails()
-                self.profileImageService.fetchProfileImageUrl(token: token) { result in
+        DispatchQueue.main.async { [weak self] in
+            self?.profileService.fetchProfile(token: token) { [weak self] result in
+                self?.updateProfileDetails()
+                self?.profileImageService.fetchProfileImageUrl(token: token) { result in
                     switch result {
                     case .success:
                         print("Success avatar load")
@@ -78,7 +82,7 @@ final class ProfileViewController: UIViewController, AuthViewControllerDelegate 
                 }
             }
             
-            self.profileImageServiceObserver = NotificationCenter.default
+            self?.profileImageServiceObserver = NotificationCenter.default
                 .addObserver(
                     forName: ProfileImageService.didChangeNotification,
                     object: nil,
@@ -87,49 +91,11 @@ final class ProfileViewController: UIViewController, AuthViewControllerDelegate 
                     guard let self = self else { return }
                     self.updateAvatar()
                 }
-            self.updateAvatar()
+            self?.updateAvatar()
         }
-    }
-    
-    // MARK: - AuthViewControllerDelegate
-    func didAuthenticate(_ vc: AuthViewController) {
-        vc.dismiss(animated: true)
-        
-        guard let token = oAuth2TokenStorage.token else {
-            print("token error ")
-            return
-        }
-        
-        fetchProfile(token)
     }
     
     // MARK: - Private Methods
-    private func fetchProfile(_ token: String) {
-        UIBlockingProgressHUD.show()
-        
-        profileService.fetchProfile(token: token) { result in
-            UIBlockingProgressHUD.dismiss()
-            switch result {
-            case .success:
-                self.updateProfileDetails()
-                print("Success authenticate")
-            case .failure:
-                print("Load profile error")
-                break
-            }
-        }
-        
-        profileImageService.fetchProfileImageUrl(token: token) { result in
-            switch result {
-            case .success:
-                print("Success avatar load")
-            case .failure:
-                print("Load avatar error")
-                break
-            }
-        }
-    }
-
     private func updateProfileDetails() {
         if let profile = profileService.profile {
             nameLabel.text = profile.name
@@ -139,51 +105,43 @@ final class ProfileViewController: UIViewController, AuthViewControllerDelegate 
             print("No profile found")
         }
     }
-
+    
     private func updateAvatar() {
-        guard let profileImageURL = ProfileImageService.shared.avatarURL else { return }
-        
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL
+        else { return }
+        let imageView = profileImageView
         let imageUrl = URL(string: profileImageURL)
-        
-        profileImageView.kf.setImage(with: imageUrl, placeholder: UIImage(named: "placeholder.jpeg")) { result in
+        imageView.kf.indicatorType = .activity
+        imageView.kf.setImage(with: imageUrl, placeholder: UIImage(named: "Rectangle 169")) { result in
             
             switch result {
             case .success(let value):
-                print("Kingfisher success")
+                print("Kingfisher avatar success")
                 print(value.image)
                 print(value.cacheType)
                 print(value.source)
             case .failure(let error):
                 print(error)
             }
-            
-            // Применяем закругление углов к изображению профиля
-            let processor = RoundCornerImageProcessor(cornerRadius: 16)
-            self.profileImageView.kf.indicatorType = .activity
-            
-            self.profileImageView.kf.setImage(with: imageUrl,
-                                               placeholder: UIImage(named: "placeholder.jpeg"),
-                                               options: [.processor(processor)])
-            
-            // Настройки кэша изображения
-            let cache = ImageCache.default
-            cache.memoryStorage.config.totalCostLimit = 50 * 1024 * 1024 // 50 MB limit for memory cache
         }
+        let cache = ImageCache.default
+        cache.memoryStorage.config.totalCostLimit = 300 * 1024 * 1024
     }
-
+    
     private func addSubviews() {
         [
             profileImageView,
             nameLabel,
             nickNameLabel,
             profileDescriptionLabel,
-            exitButton
-        ].forEach {
+            exitButton,
+        ].forEach { [weak self] in
             $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
+            self?.view.addSubview($0)
         }
     }
-
+    
     private func makeConstraints() {
         NSLayoutConstraint.activate([
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
@@ -204,28 +162,20 @@ final class ProfileViewController: UIViewController, AuthViewControllerDelegate 
             exitButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor)
         ])
     }
-
+    
     @objc
     private func didTapExitProfileButton() {
-        // Удаление токена из хранилища при выходе из профиля
-        oAuth2TokenStorage.token = nil
+        let alert = UIAlertController(title: "Пока-пока!", message: "Уверены что хотите выйти?", preferredStyle: .alert)
+        let alertYes = UIAlertAction(title: "Да", style: .default, handler: { [weak self] action in
+            self?.profileLogoutService.logout()
+        })
+        let alertNo = UIAlertAction(title: "Нет", style: .default, handler: { action in
+            alert.dismiss(animated: true)
+        })
         
-        // Переход к экрану аутентификации после выхода из профиля
-        switchToAuthViewController()
-    }
-
-    private func switchToAuthViewController() {
-        let storyboard = UIStoryboard(name: "Main", bundle: .main)
-        
-        guard let navigationController =
-                storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? UINavigationController,
-              let authViewController =
-                navigationController.topViewController as? AuthViewController else { return }
-        
-        authViewController.delegate = self // Устанавливаем делегата для аутентификации
-        
-        navigationController.modalPresentationStyle = .fullScreen
-        
-        present(navigationController, animated: true, completion: nil)
+        alert.addAction(alertYes)
+        alert.addAction(alertNo)
+        alert.preferredAction = alertNo
+        present(alert, animated: true)
     }
 }
