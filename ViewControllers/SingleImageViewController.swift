@@ -5,7 +5,7 @@
 //  Created by MacBook on 18.11.2024.
 //
 
-import UIKit
+iimport UIKit
 import Kingfisher
 
 final class SingleImageViewController: UIViewController {
