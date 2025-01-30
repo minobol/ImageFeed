@@ -9,7 +9,7 @@ class ImagesListViewController: UIViewController {
     private let imagesListService = ImagesListService.shared
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
     private var photos: [Photo] = []
-    private var ImagesListViewControllerObserver: NSObjectProtocol?
+    private var imagesListViewControllerObserver: NSObjectProtocol?
     private lazy var dateFormatter: DateFormatter = {
         let date = DateFormatter()
         date.dateFormat = "dd MMMM yyyy"
@@ -26,7 +26,7 @@ class ImagesListViewController: UIViewController {
         tableView.rowHeight = 300
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
         
-        ImagesListViewControllerObserver = NotificationCenter.default
+        imagesListViewControllerObserver = NotificationCenter.default
             .addObserver(
                 forName: ImagesListService.didChangeNotification,
                 object: nil,
@@ -35,8 +35,9 @@ class ImagesListViewController: UIViewController {
                 guard let self = self else { return }
                 self.updateTableViewAnimated()
             }
+        
         loadImages()
-        UIBlockingProgressHUD.show()
+        UIBlockingProgressHUD.show() // Показать HUD при загрузке изображений
     }
     
     // MARK: - Navigation
@@ -50,8 +51,7 @@ class ImagesListViewController: UIViewController {
                 return
             }
             
-            guard let fullImageURL = URL(string: photos[indexPath.row].largeImageURL)
-            else {
+            guard let fullImageURL = URL(string: photos[indexPath.row].largeImageURL) else {
                 return
             }
             viewController.fullImageURL = fullImageURL
@@ -61,7 +61,7 @@ class ImagesListViewController: UIViewController {
     }
 }
 
-// MARK: - extensions ImagesListViewController
+// MARK: - Extensions ImagesListViewController
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photos.count
@@ -79,7 +79,7 @@ extension ImagesListViewController: UITableViewDataSource {
         return imageListCell
     }
     
-    func tableView(_ tableView: UITableView,willDisplay cell: UITableViewCell,forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row == (photos.count - 1) {
             loadImages()
         }
@@ -92,15 +92,11 @@ extension ImagesListViewController {
         let imageURL = URL(string: photos[indexPath.row].thumbImageURL)
         let processor = RoundCornerImageProcessor(cornerRadius: 16)
         
-        
         cell.imageViewList.kf.setImage(with: imageURL,
-                                   placeholder: UIImage(named: "Rectangle 169"),
-                                   options: [.processor(processor)])
+                                       placeholder: UIImage(named: "Rectangle 169"),
+                                       options: [.processor(processor)])
         
-        guard let date = photos[indexPath.row].createdAt
-        else
-        { return
-        }
+        guard let date = photos[indexPath.row].createdAt else { return }
         
         cell.setIsLiked(like: photos[indexPath.row].isLiked)
         cell.labelList.text = dateFormatter.string(from: date)
@@ -109,17 +105,23 @@ extension ImagesListViewController {
     
     func updateTableViewAnimated() {
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            let oldCount = photos.count
-            let newCount = imagesListService.photos.count
-            photos = imagesListService.photos
+            guard let self = self else { return }
+            let oldCount = self.photos.count
+            let newCount = self.imagesListService.photos.count
+            
+            self.photos = self.imagesListService.photos
+            
             if oldCount != newCount {
-                tableView.performBatchUpdates {
+                self.tableView.performBatchUpdates {
                     let indexPaths = (oldCount..<newCount).map { i in
                         IndexPath(row: i, section: 0)
                     }
                     self.tableView.insertRows(at: indexPaths, with: .automatic)
-                } completion: { _ in }
+                } completion: { _ in
+                    UIBlockingProgressHUD.dismiss() // Скрыть HUD после обновления таблицы
+                }
+            } else {
+                UIBlockingProgressHUD.dismiss() // Скрыть HUD если количество изображений не изменилось
             }
         }
     }
@@ -130,7 +132,8 @@ extension ImagesListViewController {
             case .success:
                 self?.updateTableViewAnimated()
             case .failure:
-                print("")
+                print("Failed to load images")
+                UIBlockingProgressHUD.dismiss() // Скрыть HUD при ошибке загрузки изображений
             }
         }
     }
@@ -142,19 +145,18 @@ extension ImagesListViewController: UITableViewDelegate {
         performSegue(withIdentifier: Constants.showSingleImageSegueIdentifier, sender: indexPath)
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath, cell: ImagesListCell) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
-        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
+        let imageWidth = photos[indexPath.row].size.width
         
-        var imageWidth = photos[indexPath.row].size.width
         if imageWidth == 0 {
-            imageWidth = 200
             print("Attention, imageWidth in imageListViewController == 0!")
+            return 200 // Возвращаем стандартную высоту если ширина изображения равна нулю.
         }
+
+        let scale = (tableView.bounds.width - imageInsets.left - imageInsets.right) / imageWidth
         
-        let scale = imageViewWidth / imageWidth
-        let cellHeight = photos[indexPath.row].size.height * scale + imageInsets.top + imageInsets.bottom
-        return cellHeight
+        return (photos[indexPath.row].size.height * scale) + imageInsets.top + imageInsets.bottom
     }
 }
 
@@ -162,20 +164,28 @@ extension ImagesListViewController: ImagesListCellDelegate {
     func imageListCellDidTapLike(_ cell: ImagesListCell) {
         
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        let photo = photos[indexPath.row]
-        UIBlockingProgressHUD.show()
-        imagesListService.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
-            guard let self else { return }
+        
+        UIBlockingProgressHUD.show() // Показать HUD при изменении лайка
+        
+        let photoId = photos[indexPath.row].id
+        
+        imagesListService.changeLike(photoId: photoId, isLike:
+            !photos[indexPath.row].isLiked) { [weak self] result in
+            
+            guard let self = self else { return }
+
             switch result {
             case .success:
-                self.photos = self.imagesListService.photos
-                cell.setIsLiked(like: self.photos[indexPath.row].isLiked)
-                UIBlockingProgressHUD.dismiss()
+                self.photos[indexPath.row].isLiked.toggle() // Обновление состояния лайка в массиве.
+                cell.setIsLiked(like:
+                    self.photos[indexPath.row].isLiked)
                 print("Change like ok")
+                
             case .failure:
                 print("No like change")
-                UIBlockingProgressHUD.dismiss()
             }
+
+            UIBlockingProgressHUD.dismiss() // Скрыть HUD после изменения лайка независимо от результата операции.
         }
     }
 }

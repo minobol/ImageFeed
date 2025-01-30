@@ -63,11 +63,13 @@ final class ProfileViewController: UIViewController {
         addSubviews()
         makeConstraints()
         UIBlockingProgressHUD.show()
+
         guard let token = oAuth2TokenStorage.token else {
             print("token error ")
+            UIBlockingProgressHUD.dismiss() // Дismiss HUD if no token
             return
         }
-        
+
         DispatchQueue.main.async { [weak self] in
             self?.profileService.fetchProfile(token: token) { [weak self] result in
                 self?.updateProfileDetails()
@@ -75,13 +77,14 @@ final class ProfileViewController: UIViewController {
                     switch result {
                     case .success:
                         print("Success avatar load")
+                        self?.updateAvatar() // Update avatar after successful load
                     case .failure:
                         print("Load avatar error")
-                        break
                     }
+                    UIBlockingProgressHUD.dismiss() // Dismiss HUD after loading avatar
                 }
             }
-            
+
             self?.profileImageServiceObserver = NotificationCenter.default
                 .addObserver(
                     forName: ProfileImageService.didChangeNotification,
@@ -107,13 +110,12 @@ final class ProfileViewController: UIViewController {
     }
     
     private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL
-        else { return }
-        let imageView = profileImageView
+        guard let profileImageURL = ProfileImageService.shared.avatarURL else { return }
+        
         let imageUrl = URL(string: profileImageURL)
-        imageView.kf.indicatorType = .activity
-        imageView.kf.setImage(with: imageUrl, placeholder: UIImage(named: "Rectangle 169")) { result in
+        profileImageView.kf.indicatorType = .activity
+        
+        profileImageView.kf.setImage(with: imageUrl, placeholder: UIImage(named: "Rectangle 169")) { result in
             
             switch result {
             case .success(let value):
@@ -125,6 +127,7 @@ final class ProfileViewController: UIViewController {
                 print(error)
             }
         }
+
         let cache = ImageCache.default
         cache.memoryStorage.config.totalCostLimit = 300 * 1024 * 1024
     }
@@ -166,16 +169,20 @@ final class ProfileViewController: UIViewController {
     @objc
     private func didTapExitProfileButton() {
         let alert = UIAlertController(title: "Пока-пока!", message: "Уверены что хотите выйти?", preferredStyle: .alert)
-        let alertYes = UIAlertAction(title: "Да", style: .default, handler: { [weak self] action in
+        
+        let alertYes = UIAlertAction(title: "Да", style: .default) { [weak self] action in
             self?.profileLogoutService.logout()
-        })
-        let alertNo = UIAlertAction(title: "Нет", style: .default, handler: { action in
+        }
+        
+        let alertNo = UIAlertAction(title: "Нет", style: .default) { action in
             alert.dismiss(animated: true)
-        })
+        }
         
         alert.addAction(alertYes)
         alert.addAction(alertNo)
+        
         alert.preferredAction = alertNo
+        
         present(alert, animated: true)
     }
 }

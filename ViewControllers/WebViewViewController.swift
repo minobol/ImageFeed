@@ -54,26 +54,25 @@ final class WebViewViewController: UIViewController {
             print("URLcomponents error")
             return
         }
+        
         let request = URLRequest(url: url)
         webView.load(request)
     }
     
     @IBAction func backButton(_ sender: UIButton) {
-        delegate?.webViewViewControllerDidCancel(WebViewViewController())
+        delegate?.webViewViewControllerDidCancel(self)
     }
 }
 
-// MARK: - extension WebViewViewController
+// MARK: - WKNavigationDelegate
 extension WebViewViewController: WKNavigationDelegate {
     
     func code(from navigationAction: WKNavigationAction) -> String? {
-        if
-            let url = navigationAction.request.url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == "/oauth/authorize/native",
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" })
-        {
+        if let url = navigationAction.request.url,
+           let urlComponents = URLComponents(string: url.absoluteString),
+           urlComponents.path == "/oauth/authorize/native",
+           let items = urlComponents.queryItems,
+           let codeItem = items.first(where: { $0.name == "code" }) {
             print("func code ok")
             return codeItem.value
         } else {
@@ -86,11 +85,27 @@ extension WebViewViewController: WKNavigationDelegate {
         _ webView: WKWebView,
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            if let code = code(from: navigationAction) {
-                delegate?.webViewViewController(self, didAuthenticateWithCode: code)
-                decisionHandler(.cancel)
-            } else {
-                decisionHandler(.allow)
-            }
+        
+        if let code = code(from: navigationAction) {
+            delegate?.webViewViewController(self, didAuthenticateWithCode: code)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
         }
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        updateProgress() // Обновление прогресса при завершении загрузки
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        print("Failed to load with error: \(error.localizedDescription)")
+        progressView.isHidden = true // Скрыть прогресс при ошибке загрузки
+        // Здесь можно добавить логику для отображения сообщения об ошибке пользователю
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        print("Failed to load provisional navigation with error: \(error.localizedDescription)")
+        progressView.isHidden = true // Скрыть прогресс при ошибке предварительной навигации
+    }
 }
