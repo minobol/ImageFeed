@@ -27,23 +27,18 @@ final class WebViewPresenterSpy: WebViewPresenterProtocol {
 }
 
 final class WebViewViewControllerSpy: WebViewViewControllerProtocol {
-    var presenter: (any imageFeed.WebViewPresenterProtocol)?
+    var presenter: (any Image_Feed.WebViewPresenterProtocol)?
     var loadRequestCalled: Bool = false
     
     func load(request: URLRequest) {
         loadRequestCalled = true
     }
     
-    func setProgressValue(_ newValue: Float) {
-        
-    }
-    
-    func setProgressHidden(_ isHidden: Bool) {
-        
-    }
+    func setProgressValue(_ newValue: Float) {}
+    func setProgressHidden(_ isHidden: Bool) {}
 }
 
-final class imageFeedTests: XCTestCase {
+final class ImageFeedTests: XCTestCase {
     
     func testViewControllerCallsViewDidLoad() {
         //given

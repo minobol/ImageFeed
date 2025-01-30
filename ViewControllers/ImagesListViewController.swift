@@ -9,7 +9,7 @@ class ImagesListViewController: UIViewController {
     private let imagesListService = ImagesListService.shared
     private let oAuth2TokenStorage = OAuth2TokenStorage.shared
     private var photos: [Photo] = []
-    private var ImagesListViewControllerObserver: NSObjectProtocol?
+    private var imagesListViewControllerObserver: NSObjectProtocol?
     private lazy var dateFormatter: DateFormatter = {
         let date = DateFormatter()
         date.dateFormat = "dd MMMM yyyy"
@@ -26,7 +26,7 @@ class ImagesListViewController: UIViewController {
         tableView.rowHeight = 300
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
         
-        ImagesListViewControllerObserver = NotificationCenter.default
+        imagesListViewControllerObserver = NotificationCenter.default
             .addObserver(
                 forName: ImagesListService.didChangeNotification,
                 object: nil,
@@ -105,13 +105,14 @@ extension ImagesListViewController {
     
     func updateTableViewAnimated() {
         DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            let oldCount = photos.count
-            let newCount = imagesListService.photos.count
-            photos = imagesListService.photos
+            guard let self = self else { return }
+            let oldCount = self.photos.count
+            let newCount = self.imagesListService.photos.count
+            
+            self.photos = self.imagesListService.photos
             
             if oldCount != newCount {
-                tableView.performBatchUpdates {
+                self.tableView.performBatchUpdates {
                     let indexPaths = (oldCount..<newCount).map { i in
                         IndexPath(row: i, section: 0)
                     }
@@ -146,18 +147,16 @@ extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
-        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
+        let imageWidth = photos[indexPath.row].size.width
         
-        var imageWidth = photos[indexPath.row].size.width
         if imageWidth == 0 {
-            imageWidth = 200
             print("Attention, imageWidth in imageListViewController == 0!")
+            return 200 // Возвращаем стандартную высоту если ширина изображения равна нулю.
         }
+
+        let scale = (tableView.bounds.width - imageInsets.left - imageInsets.right) / imageWidth
         
-        let scale = imageViewWidth / imageWidth
-        let cellHeight = photos[indexPath.row].size.height * scale + imageInsets.top + imageInsets.bottom
-        
-        return cellHeight
+        return (photos[indexPath.row].size.height * scale) + imageInsets.top + imageInsets.bottom
     }
 }
 
@@ -165,23 +164,28 @@ extension ImagesListViewController: ImagesListCellDelegate {
     func imageListCellDidTapLike(_ cell: ImagesListCell) {
         
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        let photo = photos[indexPath.row]
         
         UIBlockingProgressHUD.show() // Показать HUD при изменении лайка
         
-        imagesListService.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
-            guard let self else { return }
+        let photoId = photos[indexPath.row].id
+        
+        imagesListService.changeLike(photoId: photoId, isLike:
+            !photos[indexPath.row].isLiked) { [weak self] result in
             
+            guard let self = self else { return }
+
             switch result {
             case .success:
-                self.photos = self.imagesListService.photos
-                cell.setIsLiked(like: self.photos[indexPath.row].isLiked)
+                self.photos[indexPath.row].isLiked.toggle() // Обновление состояния лайка в массиве.
+                cell.setIsLiked(like:
+                    self.photos[indexPath.row].isLiked)
                 print("Change like ok")
+                
             case .failure:
                 print("No like change")
             }
 
-            UIBlockingProgressHUD.dismiss() // Скрыть HUD после изменения лайка независимо от результата операции
+            UIBlockingProgressHUD.dismiss() // Скрыть HUD после изменения лайка независимо от результата операции.
         }
     }
 }

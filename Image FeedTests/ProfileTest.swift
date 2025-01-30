@@ -4,7 +4,7 @@
 //
 //  Created by MacBook on 24.11.2024.
 //
-@testable import imageFeed
+@testable import Image_Feed
 import XCTest
 
 final class ProfilePresenterSpy: ProfilePresenterProtocol {

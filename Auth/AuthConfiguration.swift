@@ -12,7 +12,7 @@ enum Constants {
     static let secretKey = "yB_wxA1xYDHqZmlwxRI854HpOYrNG-nrOAsvkpwfgrI"
     static let redirectURI = "urn:ietf:wg:oauth:2.0:oob"
     static let accessScope = "public+read_user+write_likes"
-    static let defaultBaseURL = URL (string: "https://api.unsplash.com/")!
+    static let defaultBaseURL = URL (string: "https://api.unsplash.com/")  ?? URL(fileURLWithPath: "")
     static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
     static let defaultURL = URL(string: "https://unsplash.com/")
     static let reuseIdentifier = "ImagesListCell"
@@ -29,11 +29,12 @@ struct AuthConfiguration {
     let authURLString: String
 
     static var standard: AuthConfiguration {
-            return AuthConfiguration(accessKey: Constants.accessKey,
-                                     secretKey: Constants.secretKey,
-                                     redirectURI: Constants.redirectURI,
-                                     accessScope: Constants.accessScope,
-                                     defaultBaseURL: (Constants.defaultBaseURL),
-                                     authURLString: Constants.unsplashAuthorizeURLString)
+        .init(
+            accessKey: Constants.accessKey,
+            secretKey: Constants.secretKey,
+            redirectURI: Constants.redirectURI,
+            accessScope: Constants.accessScope,
+            defaultBaseURL: Constants.defaultBaseURL,
+            authURLString: Constants.unsplashAuthorizeURLString)
         }
 }

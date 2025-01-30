@@ -13,9 +13,9 @@ final class ImageListPresenterSpy: ImageListPresenterProtocol {
     var cellDataLoaderCalled: Bool = false
     var loadImagesCalled: Bool = false
     var updateTableViewAnimatedCalled: Bool = false
-    var photos: [imageFeed.Photo] = []
+    var photos: [Image_Feed.Photo] = []
     
-    func cellDataLoader(cell: imageFeed.ImagesListCell, indexPath: IndexPath) {
+    func cellDataLoader(cell: Image_Feed.ImagesListCell, indexPath: IndexPath) {
         cellDataLoaderCalled = true
     }
     
@@ -27,9 +27,7 @@ final class ImageListPresenterSpy: ImageListPresenterProtocol {
         loadImagesCalled = true
     }
     
-    func likeChanger(indexPath: IndexPath, cell: imageFeed.ImagesListCell) {
-        
-    }
+    func likeChanger(indexPath: IndexPath, cell: Image_Feed.ImagesListCell) {}
 }
 
 final class ImageListTests: XCTestCase {
@@ -37,7 +35,7 @@ final class ImageListTests: XCTestCase {
     func testViewControllerCallsLoadImages() {
         //given
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let viewController = storyboard.instantiateViewController(withIdentifier: "ImageListViewController") as! ImageListViewController
+        let viewController = storyboard.instantiateViewController(withIdentifier: "ImagesListViewController") as! ImagesListViewController
         let presenter = ImageListPresenterSpy()
         viewController.presenter = presenter
         presenter.view = viewController
